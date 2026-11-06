@@ -30,7 +30,7 @@ export interface UpstreamField {
   max_length?: number;
   array_min_length?: number;
   array_max_length?: number;
-  ui?: { label?: string; [key: string]: unknown };
+  ui?: { label?: string; visible?: boolean; [key: string]: unknown };
   [key: string]: unknown;
 }
 

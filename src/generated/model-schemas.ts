@@ -111,27 +111,18 @@ export const GENERATED_IMAGE_MODEL_SCHEMA: ModelSchema = {
         "size": {
           "type": "string",
           "flags": "--size <value>",
-          "description": "size",
+          "description": "Aspect ratio",
+          "default": "16x9",
           "choices": [
-            "16:9",
             "16x9",
-            "1:1",
             "1x1",
-            "21:9",
             "21x9",
-            "2:3",
             "2x3",
-            "3:2",
-            "3:4",
             "3x2",
             "3x4",
-            "4:3",
-            "4:5",
             "4x3",
             "4x5",
-            "5:4",
             "5x4",
-            "9:16",
             "9x16"
           ]
         }
@@ -283,42 +274,26 @@ export const GENERATED_IMAGE_MODEL_SCHEMA: ModelSchema = {
           "flags": "--size <value>",
           "description": "Aspect ratio",
           "choices": [
-            "16:9",
             "16x9",
-            "1:1",
-            "1:4",
-            "1:8",
             "1x1",
             "1x4",
             "1x8",
-            "21:9",
             "21x9",
-            "2:3",
             "2x3",
-            "3:2",
-            "3:4",
             "3x2",
             "3x4",
-            "4:1",
-            "4:3",
-            "4:5",
             "4x1",
             "4x3",
             "4x5",
-            "5:4",
             "5x4",
-            "8:1",
             "8x1",
-            "9:16",
-            "9:21",
-            "9x16",
-            "9x21"
+            "9x16"
           ]
         },
         "videos": {
           "type": "stringArray",
           "flags": "--videos <value...>",
-          "description": "videos",
+          "description": "Video references",
           "maxItems": 10
         }
       }
@@ -329,17 +304,29 @@ export const GENERATED_IMAGE_MODEL_SCHEMA: ModelSchema = {
         "maxLength": 32000
       },
       "fields": {
-        "extends.edit.mask": {
-          "type": "url",
-          "flags": "--extends-edit-mask <url>",
-          "description": "Mask"
-        },
         "images": {
           "type": "urlArray",
           "flags": "--images <url...>",
-          "description": "Reference Images",
+          "description": "Reference image",
           "minItems": 1,
           "maxItems": 10
+        },
+        "max_images": {
+          "type": "integer",
+          "flags": "--max-images <value>",
+          "description": "Number of images",
+          "default": 1,
+          "min": 1,
+          "max": 1
+        },
+        "output_format": {
+          "type": "string",
+          "flags": "--output-format <value>",
+          "description": "Output format",
+          "default": "png",
+          "choices": [
+            "png"
+          ]
         },
         "quality": {
           "type": "string",
@@ -376,58 +363,25 @@ export const GENERATED_IMAGE_MODEL_SCHEMA: ModelSchema = {
         "maxLength": 32000
       },
       "fields": {
-        "background": {
-          "type": "string",
-          "flags": "--background <value>",
-          "description": "Background",
-          "default": "auto",
-          "choices": [
-            "auto",
-            "opaque",
-            "transparent"
-          ]
-        },
-        "extends.edit.mask": {
-          "type": "url",
-          "flags": "--extends-edit-mask <url>",
-          "description": "Mask"
-        },
         "images": {
           "type": "urlArray",
           "flags": "--images <url...>",
-          "description": "Reference Images",
+          "description": "Reference image",
           "minItems": 1,
           "maxItems": 16
         },
         "max_images": {
           "type": "integer",
           "flags": "--max-images <value>",
-          "description": "Number of Images",
+          "description": "Number of images",
           "default": 1,
           "min": 1,
           "max": 10
         },
-        "moderation": {
-          "type": "string",
-          "flags": "--moderation <value>",
-          "description": "Moderation",
-          "default": "auto",
-          "choices": [
-            "auto",
-            "low"
-          ]
-        },
-        "output_compression": {
-          "type": "integer",
-          "flags": "--output-compression <value>",
-          "description": "Output Compression",
-          "min": 0,
-          "max": 100
-        },
         "output_format": {
           "type": "string",
           "flags": "--output-format <value>",
-          "description": "Output Format",
+          "description": "Output format",
           "default": "png",
           "choices": [
             "jpeg",
@@ -439,7 +393,7 @@ export const GENERATED_IMAGE_MODEL_SCHEMA: ModelSchema = {
           "type": "string",
           "flags": "--quality <value>",
           "description": "Quality",
-          "default": "auto",
+          "default": "low",
           "choices": [
             "auto",
             "high",
@@ -453,7 +407,17 @@ export const GENERATED_IMAGE_MODEL_SCHEMA: ModelSchema = {
           "type": "string",
           "flags": "--size <value>",
           "description": "Size",
-          "default": "auto"
+          "default": "1024x1024",
+          "choices": [
+            "1008x1792",
+            "1024x1024",
+            "1024x1536",
+            "1280x960",
+            "1536x1024",
+            "1792x1008",
+            "960x1280",
+            "auto"
+          ]
         }
       }
     },
@@ -463,58 +427,25 @@ export const GENERATED_IMAGE_MODEL_SCHEMA: ModelSchema = {
         "maxLength": 32000
       },
       "fields": {
-        "background": {
-          "type": "string",
-          "flags": "--background <value>",
-          "description": "Background",
-          "default": "auto",
-          "choices": [
-            "auto",
-            "opaque",
-            "transparent"
-          ]
-        },
-        "extends.edit.mask": {
-          "type": "url",
-          "flags": "--extends-edit-mask <url>",
-          "description": "Mask"
-        },
         "images": {
           "type": "urlArray",
           "flags": "--images <url...>",
-          "description": "Reference Images",
+          "description": "Reference image",
           "minItems": 1,
           "maxItems": 16
         },
         "max_images": {
           "type": "integer",
           "flags": "--max-images <value>",
-          "description": "Number of Images",
+          "description": "Number of images",
           "default": 1,
           "min": 1,
           "max": 10
         },
-        "moderation": {
-          "type": "string",
-          "flags": "--moderation <value>",
-          "description": "Moderation",
-          "default": "auto",
-          "choices": [
-            "auto",
-            "low"
-          ]
-        },
-        "output_compression": {
-          "type": "integer",
-          "flags": "--output-compression <value>",
-          "description": "Output Compression",
-          "min": 0,
-          "max": 100
-        },
         "output_format": {
           "type": "string",
           "flags": "--output-format <value>",
-          "description": "Output Format",
+          "description": "Output format",
           "default": "png",
           "choices": [
             "jpeg",
@@ -526,7 +457,7 @@ export const GENERATED_IMAGE_MODEL_SCHEMA: ModelSchema = {
           "type": "string",
           "flags": "--quality <value>",
           "description": "Quality",
-          "default": "auto",
+          "default": "low",
           "choices": [
             "auto",
             "high",
@@ -540,7 +471,305 @@ export const GENERATED_IMAGE_MODEL_SCHEMA: ModelSchema = {
           "type": "string",
           "flags": "--size <value>",
           "description": "Size",
-          "default": "auto"
+          "default": "1024x1024",
+          "choices": [
+            "1008x1792",
+            "1024x1024",
+            "1024x1536",
+            "1280x960",
+            "1536x1024",
+            "1792x1008",
+            "960x1280",
+            "auto"
+          ]
+        }
+      }
+    },
+    "gpt-image-2.6-flare": {
+      "prompt": {
+        "minLength": 1,
+        "maxLength": 32000
+      },
+      "fields": {
+        "background": {
+          "type": "string",
+          "flags": "--background <value>",
+          "description": "Background",
+          "choices": [
+            "auto",
+            "opaque",
+            "transparent"
+          ]
+        },
+        "complexity": {
+          "type": "string",
+          "flags": "--complexity <value>",
+          "description": "Planning complexity",
+          "choices": [
+            "high",
+            "low",
+            "medium"
+          ]
+        },
+        "extends.edit.markup": {
+          "type": "string",
+          "flags": "--extends-edit-markup <value>",
+          "description": "Edit markup"
+        },
+        "extends.edit.markup_is_base64": {
+          "type": "bool",
+          "flags": "--extends-edit-markup-is-base64",
+          "description": "Markup is Base64"
+        },
+        "extends.edit.mask": {
+          "type": "string",
+          "flags": "--extends-edit-mask <value>",
+          "description": "Edit mask"
+        },
+        "extends.edit.mask_is_base64": {
+          "type": "bool",
+          "flags": "--extends-edit-mask-is-base64",
+          "description": "Mask is Base64"
+        },
+        "frame_count": {
+          "type": "integer",
+          "flags": "--frame-count <value>",
+          "description": "GIF frame count",
+          "min": 2,
+          "max": 16
+        },
+        "frame_duration_ms": {
+          "type": "integer",
+          "flags": "--frame-duration-ms <value>",
+          "description": "GIF frame duration (ms)",
+          "min": 20
+        },
+        "images": {
+          "type": "urlArray",
+          "flags": "--images <url...>",
+          "description": "Reference images",
+          "minItems": 1,
+          "maxItems": 14
+        },
+        "max_images": {
+          "type": "integer",
+          "flags": "--max-images <value>",
+          "description": "Number of images",
+          "default": 1,
+          "min": 1,
+          "max": 10
+        },
+        "output_compression": {
+          "type": "integer",
+          "flags": "--output-compression <value>",
+          "description": "Output compression",
+          "min": 0,
+          "max": 100
+        },
+        "output_format": {
+          "type": "string",
+          "flags": "--output-format <value>",
+          "description": "Output format",
+          "default": "png",
+          "choices": [
+            "gif",
+            "jpeg",
+            "png",
+            "webp"
+          ]
+        },
+        "quality": {
+          "type": "string",
+          "flags": "--quality <value>",
+          "description": "Quality",
+          "choices": [
+            "auto",
+            "high",
+            "low",
+            "max",
+            "medium",
+            "xhigh"
+          ]
+        },
+        "size": {
+          "type": "string",
+          "flags": "--size <value>",
+          "description": "Size"
+        }
+      }
+    },
+    "gpt-image-2.6-sunburst": {
+      "prompt": {
+        "minLength": 1,
+        "maxLength": 32000
+      },
+      "fields": {
+        "background": {
+          "type": "string",
+          "flags": "--background <value>",
+          "description": "Background",
+          "choices": [
+            "auto",
+            "opaque",
+            "transparent"
+          ]
+        },
+        "complexity": {
+          "type": "string",
+          "flags": "--complexity <value>",
+          "description": "Planning complexity",
+          "choices": [
+            "high",
+            "low",
+            "medium"
+          ]
+        },
+        "extends.edit.markup": {
+          "type": "string",
+          "flags": "--extends-edit-markup <value>",
+          "description": "Edit markup"
+        },
+        "extends.edit.markup_is_base64": {
+          "type": "bool",
+          "flags": "--extends-edit-markup-is-base64",
+          "description": "Markup is Base64"
+        },
+        "extends.edit.mask": {
+          "type": "string",
+          "flags": "--extends-edit-mask <value>",
+          "description": "Edit mask"
+        },
+        "extends.edit.mask_is_base64": {
+          "type": "bool",
+          "flags": "--extends-edit-mask-is-base64",
+          "description": "Mask is Base64"
+        },
+        "frame_count": {
+          "type": "integer",
+          "flags": "--frame-count <value>",
+          "description": "GIF frame count",
+          "min": 2,
+          "max": 16
+        },
+        "frame_duration_ms": {
+          "type": "integer",
+          "flags": "--frame-duration-ms <value>",
+          "description": "GIF frame duration (ms)",
+          "min": 20
+        },
+        "images": {
+          "type": "urlArray",
+          "flags": "--images <url...>",
+          "description": "Reference images",
+          "minItems": 1,
+          "maxItems": 14
+        },
+        "max_images": {
+          "type": "integer",
+          "flags": "--max-images <value>",
+          "description": "Number of images",
+          "default": 1,
+          "min": 1,
+          "max": 10
+        },
+        "output_compression": {
+          "type": "integer",
+          "flags": "--output-compression <value>",
+          "description": "Output compression",
+          "min": 0,
+          "max": 100
+        },
+        "output_format": {
+          "type": "string",
+          "flags": "--output-format <value>",
+          "description": "Output format",
+          "default": "png",
+          "choices": [
+            "gif",
+            "jpeg",
+            "png",
+            "webp"
+          ]
+        },
+        "quality": {
+          "type": "string",
+          "flags": "--quality <value>",
+          "description": "Quality",
+          "choices": [
+            "auto",
+            "high",
+            "low",
+            "max",
+            "medium",
+            "xhigh"
+          ]
+        },
+        "size": {
+          "type": "string",
+          "flags": "--size <value>",
+          "description": "Size"
+        }
+      }
+    },
+    "grok-imagine-image-2.0": {
+      "prompt": {
+        "minLength": 1
+      },
+      "fields": {
+        "generation_quality": {
+          "type": "string",
+          "flags": "--generation-quality <value>",
+          "description": "Generation quality",
+          "default": "medium",
+          "choices": [
+            "low",
+            "medium"
+          ]
+        },
+        "images": {
+          "type": "urlArray",
+          "flags": "--images <url...>",
+          "description": "Reference images",
+          "minItems": 0,
+          "maxItems": 3
+        },
+        "max_images": {
+          "type": "string",
+          "flags": "--max-images <value>",
+          "description": "Number of output images",
+          "default": 1,
+          "min": 1,
+          "max": 10
+        },
+        "quality": {
+          "type": "string",
+          "flags": "--quality <value>",
+          "description": "Output resolution",
+          "default": "2K",
+          "choices": [
+            "1K",
+            "2K"
+          ]
+        },
+        "size": {
+          "type": "string",
+          "flags": "--size <value>",
+          "description": "Text-to-image aspect ratio",
+          "choices": [
+            "16x9",
+            "19.5x9",
+            "1x1",
+            "1x2",
+            "20x9",
+            "2x1",
+            "2x3",
+            "3x2",
+            "3x4",
+            "4x3",
+            "9x16",
+            "9x19.5",
+            "9x20"
+          ]
         }
       }
     },
@@ -728,29 +957,63 @@ export const GENERATED_IMAGE_MODEL_SCHEMA: ModelSchema = {
     },
     "seedream-5.0-pro": {
       "prompt": {
-        "minLength": 1,
-        "maxLength": 2000
+        "minLength": 1
       },
       "fields": {
+        "background": {
+          "type": "string",
+          "flags": "--background <value>",
+          "description": "background",
+          "choices": [
+            "opaque",
+            "transparent"
+          ]
+        },
+        "extends.layer_decomposition": {
+          "type": "bool",
+          "flags": "--extends-layer-decomposition",
+          "description": "extends.layer_decomposition"
+        },
+        "extends.optimize_prompt_options.mode": {
+          "type": "string",
+          "flags": "--extends-optimize-prompt-options-mode <value>",
+          "description": "extends.optimize_prompt_options.mode",
+          "choices": [
+            "fast",
+            "standard"
+          ]
+        },
         "images": {
-          "type": "urlArray",
-          "flags": "--images <url...>",
-          "description": "Reference Images",
+          "type": "stringArray",
+          "flags": "--images <value...>",
+          "description": "images",
           "maxItems": 10
         },
         "max_images": {
           "type": "integer",
           "flags": "--max-images <value>",
-          "description": "Max Images",
-          "default": 1,
-          "min": 1,
+          "description": "max_images",
+          "min": 0,
           "max": 1
+        },
+        "metadata": {
+          "type": "string",
+          "flags": "--metadata <value>",
+          "description": "metadata"
+        },
+        "output_format": {
+          "type": "string",
+          "flags": "--output-format <value>",
+          "description": "output_format",
+          "choices": [
+            "jpeg",
+            "png"
+          ]
         },
         "quality": {
           "type": "string",
           "flags": "--quality <value>",
-          "description": "Quality",
-          "default": "1K",
+          "description": "quality",
           "choices": [
             "1K",
             "2K"
@@ -759,7 +1022,12 @@ export const GENERATED_IMAGE_MODEL_SCHEMA: ModelSchema = {
         "size": {
           "type": "string",
           "flags": "--size <value>",
-          "description": "Size"
+          "description": "size"
+        },
+        "watermark": {
+          "type": "bool",
+          "flags": "--watermark",
+          "description": "watermark"
         }
       }
     }
@@ -769,6 +1037,33 @@ export const GENERATED_IMAGE_MODEL_SCHEMA: ModelSchema = {
 export const GENERATED_VIDEO_MODEL_SCHEMA: ModelSchema = {
   "defaultModel": "kling-v3",
   "models": {
+    "gemini-omni-flash-preview": {
+      "prompt": {
+        "minLength": 1
+      },
+      "fields": {
+        "duration": {
+          "type": "integer",
+          "flags": "--duration <value>",
+          "description": "duration"
+        },
+        "image_list": {
+          "type": "stringArray",
+          "flags": "--image-list <value...>",
+          "description": "image_list"
+        },
+        "resolution": {
+          "type": "string",
+          "flags": "--resolution <value>",
+          "description": "resolution"
+        },
+        "size": {
+          "type": "string",
+          "flags": "--size <value>",
+          "description": "size"
+        }
+      }
+    },
     "happyhorse-1.0": {
       "prompt": {
         "minLength": 1,
@@ -905,9 +1200,16 @@ export const GENERATED_VIDEO_MODEL_SCHEMA: ModelSchema = {
         }
       }
     },
-    "MiniMax-H3": {
+    "Kling4.0": {
       "prompt": {
         "minLength": 1
+      },
+      "fields": {}
+    },
+    "MiniMax-H3": {
+      "prompt": {
+        "minLength": 1,
+        "maxLength": 7000
       },
       "fields": {
         "audio_url": {
@@ -1068,6 +1370,7 @@ export const GENERATED_VIDEO_MODEL_SCHEMA: ModelSchema = {
           "description": "Duration",
           "default": 4,
           "choices": [
+            -1,
             4,
             5,
             6,
@@ -1375,6 +1678,7 @@ export const GENERATED_VIDEO_MODEL_SCHEMA: ModelSchema = {
           "description": "Resolution",
           "default": "720P",
           "choices": [
+            "1080P",
             "480P",
             "720P"
           ]

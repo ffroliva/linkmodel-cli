@@ -16,6 +16,7 @@ const schemas: Record<string, UpstreamParameterSchema> = {
       { name: 'prompt', type: 'string', min_length: 1, max_length: 32000 },
       { name: 'images', type: 'array', constraints: { item_format: 'url', array_max_length: 10 }, ui: { label: 'Reference images' } },
       { name: 'quality', type: 'string', constraints: { enum_values: ['high', 'low', 'medium'], default: 'medium' } },
+      { name: 'hidden_option', type: 'string', default: 'invalid-default', ui: { visible: false } },
     ],
   },
   'kling-v3': {
@@ -46,6 +47,7 @@ test('transforms image parameter constraints and excludes model/prompt fields', 
   assert.deepEqual(schema.models['gpt-image-2'].prompt, { minLength: 1, maxLength: 32000 });
   assert.equal(schema.models['gpt-image-2'].fields.model, undefined);
   assert.equal(schema.models['gpt-image-2'].fields.prompt, undefined);
+  assert.equal(schema.models['gpt-image-2'].fields.hidden_option, undefined);
   assert.equal(schema.models['gpt-image-2'].fields.images.type, 'urlArray');
   assert.equal(schema.models['gpt-image-2'].fields.images.maxItems, 10);
   assert.deepEqual(schema.models['gpt-image-2'].fields.quality.choices, ['high', 'low', 'medium']);

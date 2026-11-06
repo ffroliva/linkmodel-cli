@@ -84,6 +84,7 @@ function modelSchema(mode, models, schemas) {
     const fields = {};
     for (const field of allFields.sort((a, b) => a.name.localeCompare(b.name))) {
       if (!field.name || field.name === 'model' || field.name === 'prompt') continue;
+      if (field.ui?.visible === false) continue;
       if (field.type === 'object' && [...names].some((name) => name.startsWith(`${field.name}.`))) continue;
       const type = fieldType(field);
       const spec = { type, flags: fieldFlags(field.name, type), description: fieldDescription(field) };

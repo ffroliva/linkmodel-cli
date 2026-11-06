@@ -20,6 +20,7 @@ const schema: ModelSchema = {
         duration: { type: 'integer', flags: '-d, --duration <seconds>', description: 'duration', choices: [3, 4, 5], default: 5 },
         'extends.audio': { type: 'bool', flags: '--extends-audio', description: 'include audio', default: false },
         'extends.cfg_scale': { type: 'float', flags: '--extends-cfg-scale <value>', description: 'cfg', min: 0, max: 1, default: 0.5 },
+        'extends.edit.mask': { type: 'url', flags: '--extends-edit-mask <url>', description: 'mask' },
         first_frame_image: { type: 'url', flags: '--first-frame-image <url>', description: 'first frame' },
         videos: { type: 'urlArray', flags: '--video <url...>', rawKey: 'video', description: 'videos', maxItems: 3 },
       },
@@ -56,16 +57,18 @@ test('Wan 3.0 builds defaults and rejects unsupported duration and resolution', 
   assert.ok(errors.some((e) => e.includes('resolution must be one of')));
 });
 
-test('GPT Image 2 mask is URL-validated and nested under extends.edit', () => {
-  const opts = parseModelGenOptions(IMAGE_MODEL_SCHEMA, {
-    model: 'gpt-image-2', extendsEditMask: 'https://example.com/mask.png',
+test('dotted URL fields are URL-validated and nested in the request', () => {
+  const opts = parseModelGenOptions(schema, {
+    model: 'kling-v3', extendsEditMask: 'https://example.com/mask.png',
   });
-  assert.deepEqual(validateModelGen(IMAGE_MODEL_SCHEMA, 'a cat', opts), []);
-  assert.deepEqual(buildModelCreateRequest(IMAGE_MODEL_SCHEMA, 'a cat', opts).extends, {
+  assert.deepEqual(validateModelGen(schema, 'a cat', opts), []);
+  assert.deepEqual(buildModelCreateRequest(schema, 'a cat', opts).extends, {
+    audio: false,
+    cfg_scale: 0.5,
     edit: { mask: 'https://example.com/mask.png' },
   });
   opts['extends.edit.mask'] = 'invalid';
-  assert.ok(validateModelGen(IMAGE_MODEL_SCHEMA, 'a cat', opts).some((e) => e.includes('extends.edit.mask must be a valid URL')));
+  assert.ok(validateModelGen(schema, 'a cat', opts).some((e) => e.includes('extends.edit.mask must be a valid URL')));
 });
 
 test('parse/build: bool, float, dotted fields become nested request body', () => {

@@ -108,6 +108,7 @@ function fieldsForModel(schema: UpstreamParameterSchema | undefined): Record<str
   return Object.fromEntries(
     fields
       .filter((field) => field.name && field.name !== 'model' && field.name !== 'prompt')
+      .filter((field) => field.ui?.visible !== false)
       .filter((field) => field.type !== 'object' || ![...names].some((name) => name.startsWith(`${field.name}.`)))
       .map((field) => [field.name, toFieldSpec(field)]),
   );
