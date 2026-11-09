@@ -109,6 +109,41 @@ test('git-ignored files are not reported', () => {
   assert.equal(r.status, 0, r.out);
 });
 
+const AGENT_FILES: Files = {
+  'AGENTS.md': '# AGENTS.md\n',
+  'CLAUDE.md': '@AGENTS.md\n',
+  'GEMINI.md': '@./AGENTS.md\n',
+};
+
+test('AGENTS.md is the source of truth and the pointer files only import it', () => {
+  const r = runChecker({ ...PUBLIC_TREE, ...AGENT_FILES });
+  assert.equal(r.status, 0, r.out);
+});
+
+test('anything written into CLAUDE.md or GEMINI.md besides the import is rejected', () => {
+  for (const [file, body] of [
+    ['CLAUDE.md', '@AGENTS.md\n\n- also run lint\n'],
+    ['GEMINI.md', '# Gemini rules\n@./AGENTS.md\n'],
+    ['CLAUDE.md', '@README.md\n'],
+  ]) {
+    const r = runChecker({ ...PUBLIC_TREE, ...AGENT_FILES, [file]: body });
+    assert.equal(r.status, 1, `${file} with ${JSON.stringify(body)} should be rejected:\n${r.out}`);
+    assert.match(r.out, new RegExp(`${file}: must contain only the import of AGENTS\\.md`));
+  }
+});
+
+test('a pointer file without AGENTS.md is rejected', () => {
+  const r = runChecker({ ...PUBLIC_TREE, 'CLAUDE.md': '@AGENTS.md\n' });
+  assert.equal(r.status, 1, r.out);
+  assert.match(r.out, /CLAUDE\.md: imports AGENTS\.md, which is missing/);
+});
+
+test('machine-local agent notes are private', () => {
+  const r = runChecker({ ...PUBLIC_TREE, ...AGENT_FILES, 'AGENTS.local.md': '# where private docs go\n' });
+  assert.equal(r.status, 1, r.out);
+  assert.match(r.out, /AGENTS\.local\.md: machine-local agent notes/);
+});
+
 test('the failure message points to the policy', () => {
   const r = runChecker({ ...PUBLIC_TREE, 'docs/plans/plan.md': '# x\n' });
   assert.match(r.out, /docs\/DOCUMENTATION_POLICY\.md/);

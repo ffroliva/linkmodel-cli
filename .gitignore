@@ -13,8 +13,9 @@ docs/research/
 **/council/
 *.private.*
 
-# Local agent worktrees and settings
+# Local agent worktrees, settings and machine-local agent notes (AGENTS.local.md)
 .claude/
+*.local.md
 
 # Exported conversation logs that may contain sensitive information
 *-cli-linkmodel-api-cli.txt

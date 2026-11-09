@@ -13,6 +13,8 @@ documentation its users and contributors need. Nothing else.
 | Contribution, security and conduct guides | `CONTRIBUTING.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md` |
 | User and reference documentation (commands, output formats, exit codes, errors) | `docs/` |
 | Issue and pull request templates, CI workflows | `.github/` |
+| Rules for AI coding agents (source of truth) | `AGENTS.md` |
+| Harness entry points that only import `AGENTS.md` | `CLAUDE.md`, `GEMINI.md` |
 
 Documentation describes how the tool behaves for its users. It is written in neutral, factual
 language and stays accurate for the released version.
@@ -34,7 +36,10 @@ They are not committed, even temporarily.
 - a document whose name marks it as `private`, `internal`, `draft`, `nda` or `confidential`;
 - a document carrying `visibility: private`, `visibility: internal`, `visibility: shared-nda` or
   `confidential: yes` front matter, or the equivalent HTML comment;
-- office documents (`.docx`, `.pptx`, `.xlsx` and similar).
+- office documents (`.docx`, `.pptx`, `.xlsx` and similar);
+- `CLAUDE.md` or `GEMINI.md` containing anything other than the import of `AGENTS.md`, or either
+  of them present without `AGENTS.md`;
+- machine-local agent notes (`*.local.md`), which stay on the maintainer's machine.
 
 The common private folders are also listed in `.gitignore`, so they are not picked up by
 `git add` by accident. A file forced past `.gitignore` is still caught by the check.

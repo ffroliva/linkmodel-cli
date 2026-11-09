@@ -11,8 +11,14 @@ const DOC_EXT = new Set(['.md', '.mdx', '.markdown', '.txt', '.rst', '.adoc', '.
 const MARKDOWN_EXT = new Set(['.md', '.mdx', '.markdown']);
 const OFFICE_EXT = new Set(['.docx', '.doc', '.pptx', '.ppt', '.xlsx', '.xls', '.odt', '.odp', '.ods', '.key', '.pages']);
 const PRIVATE_DIRS = new Set(['plans', 'specs', 'superpowers', 'council', 'internal', 'research', '.planning']);
+// AGENTS.md is the single source of truth for coding agents; harness files may only import it.
+const AGENT_POINTERS = new Map([
+  ['CLAUDE.md', '@AGENTS.md'],
+  ['GEMINI.md', '@./AGENTS.md'],
+]);
 const ROOT_MARKDOWN = new Set([
   'README.md', 'install.md', 'CHANGELOG.md', 'CONTRIBUTING.md', 'SECURITY.md', 'CODE_OF_CONDUCT.md', 'LICENSE.md',
+  'AGENTS.md', ...AGENT_POINTERS.keys(),
 ]);
 const PUBLIC_MARKDOWN_DIRS = ['docs/', '.github/'];
 const PRIVATE_NAME = /(^|[-_.])(private|internal|draft|nda|confidential)([-_.]|$)/i;
@@ -30,6 +36,15 @@ function violation(rel, readText) {
 
   if (OFFICE_EXT.has(ext)) return 'office documents are not public documentation';
   if (!DOC_EXT.has(ext)) return null;
+  if (/\.local\.md$/i.test(base)) return 'machine-local agent notes stay on the machine (git-ignored)';
+  if (AGENT_POINTERS.has(rel)) {
+    const expected = AGENT_POINTERS.get(rel);
+    const text = readText(rel);
+    if (text !== null && text.trim() !== expected) {
+      return `must contain only the import of AGENTS.md ("${expected}"); write agent rules in AGENTS.md`;
+    }
+    return null;
+  }
 
   const privateDir = segments.slice(0, -1).find((s) => PRIVATE_DIRS.has(s.toLowerCase()));
   if (privateDir) return `documents under a "${privateDir}" folder are private (plans, specs, reviews, research)`;
@@ -61,8 +76,14 @@ function main() {
       return null;
     }
   };
-  const offenders = committableFiles(root)
+  const files = committableFiles(root);
+  const missingSource = !files.includes('AGENTS.md');
+  const offenders = files
     .map((rel) => [rel, violation(rel, readText)])
+    .map(([rel, reason]) =>
+      reason === null && missingSource && AGENT_POINTERS.has(rel)
+        ? [rel, 'imports AGENTS.md, which is missing']
+        : [rel, reason])
     .filter(([, reason]) => reason !== null);
 
   if (offenders.length === 0) return;
