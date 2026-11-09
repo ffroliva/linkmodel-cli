@@ -5,5 +5,16 @@ out/
 docs/plans/
 docs/superpowers/
 
+# Private documentation never lives in this public repository (docs/DOCUMENTATION_POLICY.md)
+docs/internal/
+docs/specs/
+docs/research/
+.planning/
+**/council/
+*.private.*
+
+# Local agent worktrees and settings
+.claude/
+
 # Exported conversation logs that may contain sensitive information
 *-cli-linkmodel-api-cli.txt

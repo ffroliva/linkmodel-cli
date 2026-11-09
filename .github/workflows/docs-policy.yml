@@ -1,0 +1,24 @@
+name: docs-policy
+
+# Blocks private documentation from entering this public repository (docs/DOCUMENTATION_POLICY.md).
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: No private documentation in the tree
+        run: npm run check:docs
+      - name: Policy checker tests
+        run: npx tsc -p tsconfig.test.json && node --test test-dist/test/public-docs.test.js
