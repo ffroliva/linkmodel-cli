@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { parseEnvelope, withRequestId, type Envelope } from './envelope.js';
 import { isTaskStatus, type ApiKeyQuotaData, type CreateTaskData, type TaskStatusData } from './types.js';
 import { PACKAGE_NAME, VERSION } from '../generated/version.js';
@@ -99,7 +100,7 @@ export class LinkmodelClient {
     body: unknown,
     headers?: Record<string, string>,
   ): Promise<Envelope<TData>> {
-    const requestId = headers?.['X-Request-Id'] ?? `req_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+    const requestId = headers?.['X-Request-Id'] ?? `req_${Date.now()}_${randomUUID().replaceAll('-', '').slice(0, 8)}`;
     const idempotencyKey = headers?.['Idempotency-Key'] ?? requestId;
     const requestHeaders = {
       'X-Request-Id': requestId,
