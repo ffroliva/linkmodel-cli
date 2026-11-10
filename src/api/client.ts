@@ -54,7 +54,11 @@ export interface LinkmodelClientOptions {
 
 const defaultSleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
-export function buildClientHeaders(apiKey: string, body?: unknown): Record<string, string> {
+export function buildClientHeaders(
+  apiKey: string,
+  body?: unknown,
+  extraHeaders?: Record<string, string>,
+): Record<string, string> {
   return {
     Authorization: `Bearer ${apiKey}`,
     Accept: 'application/json',
@@ -62,6 +66,7 @@ export function buildClientHeaders(apiKey: string, body?: unknown): Record<strin
     'X-LinkModel-Client': CLIENT_SOURCE,
     'X-LinkModel-Client-Version': VERSION,
     ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+    ...extraHeaders,
   };
 }
 
@@ -85,9 +90,22 @@ export class LinkmodelClient {
 
   /**
    * Create a task. Endpoint path and body come from ModalitySpec; the client is modality-agnostic.
+   * INVARIANT: Never retries automatically. Network failures or 5xx errors on create
+   * do not retry to eliminate any risk of double billing the user.
    */
-  createTask<TData = CreateTaskData>(path: string, body: unknown): Promise<Envelope<TData>> {
-    return this.requestWithRetry(() => this.request('POST', path, body));
+  createTask<TData = CreateTaskData>(
+    path: string,
+    body: unknown,
+    headers?: Record<string, string>,
+  ): Promise<Envelope<TData>> {
+    const requestId = headers?.['X-Request-Id'] ?? `req_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+    const idempotencyKey = headers?.['Idempotency-Key'] ?? requestId;
+    const requestHeaders = {
+      'X-Request-Id': requestId,
+      'Idempotency-Key': idempotencyKey,
+      ...headers,
+    };
+    return this.request('POST', path, body, requestHeaders);
   }
 
   /**
@@ -110,6 +128,16 @@ export class LinkmodelClient {
       );
     }
     return env;
+  }
+
+  /**
+   * Fetch current API key quota and spend limits.
+   * Safe to retry with backoff because GET is idempotent.
+   */
+  async fetchApiKeyQuota(): Promise<Envelope<any>> {
+    return this.requestWithRetry(() =>
+      this.request('GET', '/billing/api-key/quota'),
+    );
   }
 
   /**
@@ -136,6 +164,7 @@ export class LinkmodelClient {
     method: 'GET' | 'POST',
     path: string,
     body?: unknown,
+    headers?: Record<string, string>,
   ): Promise<Envelope<T>> {
     const url = `${this.baseUrl}${path}`;
     let res: Response;
@@ -145,7 +174,7 @@ export class LinkmodelClient {
     try {
       res = await this.fetchImpl(url, {
         method,
-        headers: buildClientHeaders(this.apiKey, body),
+        headers: buildClientHeaders(this.apiKey, body, headers),
         body: body !== undefined ? JSON.stringify(body) : undefined,
         signal: AbortSignal.timeout(this.requestTimeoutMs),
       });
