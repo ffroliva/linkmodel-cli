@@ -99,7 +99,14 @@ export function reportFailure(
 }
 
 export function exitCodeForError(err: unknown): number {
-  return err instanceof AuthError ? EXIT.AUTH : EXIT.FAILED;
+  if (err instanceof AuthError) return EXIT.AUTH;
+  const status = (err as any)?.status;
+  const code = (err as any)?.code;
+  const msg = (err as Error)?.message ?? '';
+  if (status === 401 || code === 401 || /invalid api key|authentication failed/i.test(msg)) {
+    return EXIT.AUTH;
+  }
+  return EXIT.FAILED;
 }
 
 export function errorMessage(err: unknown): string {
