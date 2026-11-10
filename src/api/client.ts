@@ -1,5 +1,5 @@
 import { parseEnvelope, withRequestId, type Envelope } from './envelope.js';
-import { isTaskStatus, type CreateTaskData, type TaskStatusData } from './types.js';
+import { isTaskStatus, type ApiKeyQuotaData, type CreateTaskData, type TaskStatusData } from './types.js';
 import { PACKAGE_NAME, VERSION } from '../generated/version.js';
 
 export const DEFAULT_BASE_URL = 'https://api.linkmodel.ai/v1';
@@ -17,6 +17,7 @@ export class ApiError extends Error {
     message: string,
     readonly status: number,
     readonly requestId?: string,
+    readonly code?: number,
   ) {
     super(message);
     this.name = 'ApiError';
@@ -134,10 +135,31 @@ export class LinkmodelClient {
    * Fetch current API key quota and spend limits.
    * Safe to retry with backoff because GET is idempotent.
    */
-  async fetchApiKeyQuota(): Promise<Envelope<any>> {
-    return this.requestWithRetry(() =>
-      this.request('GET', '/billing/api-key/quota'),
-    );
+  async fetchApiKeyQuota(): Promise<ApiKeyQuotaData> {
+    return this.requestWithRetry(async () => {
+      const url = `${this.baseUrl}/billing/api-key/quota`;
+      let res: Response;
+      let text: string;
+      try {
+        res = await this.fetchImpl(url, {
+          method: 'GET',
+          headers: buildClientHeaders(this.apiKey),
+          signal: AbortSignal.timeout(this.requestTimeoutMs),
+        });
+        text = await res.text();
+      } catch (err) {
+        throw new NetworkError(url, err);
+      }
+      if (!res.ok) {
+        if (res.status === 401) throw new AuthError(`Authentication failed: ${text}`);
+        throw new ApiError(`HTTP ${res.status}: ${text}`, res.status);
+      }
+      try {
+        return JSON.parse(text) as ApiKeyQuotaData;
+      } catch {
+        throw new ApiError(`Invalid quota response (HTTP ${res.status}): ${text}`, res.status);
+      }
+    });
   }
 
   /**
@@ -145,7 +167,7 @@ export class LinkmodelClient {
    * - Only 5xx and network errors use exponential backoff (500ms -> 1s -> 2s), up to 3 retries.
    * - 4xx and business errors (HTTP 200 with non-zero code) are never retried.
    */
-  private async requestWithRetry<T>(fn: () => Promise<Envelope<T>>): Promise<Envelope<T>> {
+  private async requestWithRetry<T>(fn: () => Promise<T>): Promise<T> {
     let attempt = 0;
     for (;;) {
       try {
@@ -228,5 +250,5 @@ function businessError<T>(envelope: Envelope<T>): ApiError {
     return new AuthError(`Authentication failed: ${message}`, envelope.requestId);
   }
   // Use status 200 for business errors so they do not trigger transport retry logic.
-  return new ApiError(message, 200, envelope.requestId);
+  return new ApiError(message, 200, envelope.requestId, envelope.code);
 }

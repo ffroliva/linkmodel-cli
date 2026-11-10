@@ -210,10 +210,10 @@ test('fetchApiKeyQuota: calls /billing/api-key/quota with retry on 5xx', async (
     n++;
     return n === 1
       ? jsonResponse(500, { code: 500, msg: 'flaky' })
-      : jsonResponse(200, { code: 0, msg: 'ok', data: { daily: { limit: '1.0', remaining: '0.8' } } });
+      : jsonResponse(200, { daily: { limit: '1.0', remaining: '0.8' } });
   });
-  const env = await client.fetchApiKeyQuota();
-  assert.equal(env.data.daily.remaining, '0.8');
+  const quota = await client.fetchApiKeyQuota();
+  assert.equal(quota.daily?.remaining, '0.8');
   assert.equal(calls.length, 2);
   assert.equal(calls[0].url, 'https://api.test/v1/billing/api-key/quota');
 });

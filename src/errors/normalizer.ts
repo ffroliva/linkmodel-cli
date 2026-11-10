@@ -26,8 +26,9 @@ export function normalizeError(
   const wireStatus = context.upstreamStatus ?? getStatusFromError(err);
   const envelope = extractEnvelope(err);
   const msg = envelope?.msg ?? envelope?.message ?? (err instanceof Error ? err.message : String(err));
-  const code = envelope?.code;
-  const requestId = envelope?.request_id ?? envelope?.requestId;
+  const rawCode = envelope?.code ?? (err as any)?.code;
+  const code = rawCode !== undefined ? rawCode : extractCodeFromMessage(msg);
+  const requestId = envelope?.request_id ?? envelope?.requestId ?? (err as any)?.requestId;
 
   // 1. Business Code: 100601 (Insufficient balance / Daily quota breached)
   if (code === 100601 || msg.includes('insufficient balance')) {
@@ -229,4 +230,9 @@ function isNetworkFault(err: unknown): boolean {
     );
   }
   return false;
+}
+
+function extractCodeFromMessage(msg: string): number | undefined {
+  const match = msg.match(/error code\s+(\d+)/i) || msg.match(/"code":\s*(\d+)/i);
+  return match ? parseInt(match[1], 10) : undefined;
 }
