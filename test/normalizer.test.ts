@@ -94,3 +94,16 @@ test('normalizer: maps OSS 403 download error to OUTPUT_EXPIRED (exit 1, charged
   assert.equal(problem.next_action, 'regenerate');
   assert.equal(problem.exitCode, ExitCode.GENERAL_ERROR);
 });
+
+test('normalizer: maps PollTimeoutError to POLL_TIMEOUT (exit 4, charged yes, retryable true)', () => {
+  const timeoutErr = new Error('Polling timed out after 900s');
+  timeoutErr.name = 'PollTimeoutError';
+  const problem = normalizeError(timeoutErr, { operation: 'query', taskId: 'task-test-timeout' });
+
+  assert.equal(problem.reason, 'POLL_TIMEOUT');
+  assert.equal(problem.charged, 'yes');
+  assert.equal(problem.retryable, true);
+  assert.equal(problem.next_action, 'check_status');
+  assert.equal(problem.exitCode, ExitCode.RATE_LIMIT);
+  assert.equal(problem.upstream?.taskId, 'task-test-timeout');
+});

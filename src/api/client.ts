@@ -100,8 +100,14 @@ export class LinkmodelClient {
     body: unknown,
     headers?: Record<string, string>,
   ): Promise<Envelope<TData>> {
-    const requestId = headers?.['X-Request-Id'] ?? `req_${Date.now()}_${randomUUID().replaceAll('-', '').slice(0, 8)}`;
-    const idempotencyKey = headers?.['Idempotency-Key'] ?? requestId;
+    const requestId =
+      headers?.['X-Request-Id'] ??
+      headers?.['x-request-id'] ??
+      `req_${Date.now()}_${randomUUID().replaceAll('-', '').slice(0, 8)}`;
+    const idempotencyKey =
+      headers?.['Idempotency-Key'] ??
+      headers?.['idempotency-key'] ??
+      requestId;
     const requestHeaders = {
       'X-Request-Id': requestId,
       'Idempotency-Key': idempotencyKey,

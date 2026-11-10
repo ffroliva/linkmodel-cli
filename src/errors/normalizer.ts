@@ -144,7 +144,27 @@ export function normalizeError(
     };
   }
 
-  // 7. Network / Transport Faults
+  // 7. Polling Timeout (evaluated before network faults to prevent PollTimeoutError misclassification)
+  if (
+    (err instanceof Error && err.name === 'PollTimeoutError') ||
+    msg.includes('Timed out') ||
+    msg.includes('Polling timed out')
+  ) {
+    return {
+      type: 'https://api.linkmodel.ai/errors/timeout',
+      title: 'Task Polling Timeout',
+      status: 504,
+      detail: msg,
+      reason: 'POLL_TIMEOUT',
+      retryable: true,
+      charged: 'yes',
+      next_action: 'check_status',
+      exitCode: ExitCode.RATE_LIMIT, // Matches parity exit code 4 for timeout
+      upstream: { taskId: context.taskId, msg },
+    };
+  }
+
+  // 8. Network / Transport Faults
   if (isNetworkFault(err) || msg.includes('Network error') || msg.includes('fetch failed')) {
     const isCreate = context.operation === 'create';
     return {
@@ -162,22 +182,6 @@ export function normalizeError(
       next_action: isCreate ? 'reconcile' : 'retry',
       exitCode: ExitCode.NETWORK_ERROR,
       upstream: { msg, status: wireStatus },
-    };
-  }
-
-  // 8. Polling Timeout
-  if (msg.includes('Timed out') || msg.includes('timeout')) {
-    return {
-      type: 'https://api.linkmodel.ai/errors/timeout',
-      title: 'Task Polling Timeout',
-      status: 504,
-      detail: msg,
-      reason: 'POLL_TIMEOUT',
-      retryable: true,
-      charged: 'yes',
-      next_action: 'check_status',
-      exitCode: ExitCode.RATE_LIMIT, // Matches parity exit code 4 for timeout
-      upstream: { taskId: context.taskId, msg },
     };
   }
 
